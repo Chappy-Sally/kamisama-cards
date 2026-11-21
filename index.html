@@ -48,6 +48,19 @@
   .genre-btn .gc{font-size:11px; color:var(--brown);}
   .genre-btn.wide{grid-column:1 / -1;}
   .note{text-align:center; font-size:12px; color:#9a8a63; margin-top:18px; line-height:1.7;}
+  .guardian-box{border-top:2px dashed var(--gold); margin-top:18px; padding-top:8px;}
+  .bd-row{display:flex; gap:5px; align-items:center; justify-content:center; margin-bottom:12px; flex-wrap:wrap;}
+  .bd-row select{
+    font-size:16px; padding:10px 4px; border:2px solid var(--gold); border-radius:10px;
+    background:#fff; font-family:inherit; color:var(--ink);
+  }
+  .bd-row span{font-size:13px; color:var(--brown); font-weight:700;}
+  .btn-guardian{
+    background:var(--purple); color:#fff; font-size:17px; padding:14px 10px;
+    box-shadow:0 4px 0 #241239;
+  }
+  .btn-guardian:active{transform:translateY(2px); box-shadow:0 2px 0 #241239;}
+  .result-sub{text-align:center; color:var(--brown); font-size:14px; margin:-6px 0 12px; font-weight:700;}
   /* 引くアニメーション */
   #screen-draw{text-align:center; padding-top:26px;}
   .cardback{
@@ -127,6 +140,17 @@
       <p class="genre-title">ジャンルを選んで引く</p>
       <div class="genre-grid" id="genre-grid"></div>
       <p class="note">おまかせは44柱ぜんぶの中から、<br>ジャンル引きは選んだジャンルの神様の中から出てくるよ。</p>
+      <div class="guardian-box">
+        <p class="genre-title">🎂 あなたの守り神</p>
+        <p class="lead">生年月日から出す「あなたの数字」で、<br>ずっと応援してくれる守り神が分かるよ。</p>
+        <div class="bd-row">
+          <select id="bd-y" aria-label="生まれた年"></select><span>年</span>
+          <select id="bd-m" aria-label="生まれた月"></select><span>月</span>
+          <select id="bd-d" aria-label="生まれた日"></select><span>日</span>
+        </div>
+        <button class="btn btn-guardian" id="btn-guardian">守り神を調べる</button>
+        <p class="note">生年月日は計算にだけ使って、保存はしないよ。</p>
+      </div>
     </div>
   </section>
 
@@ -143,6 +167,7 @@
   <!-- 結果 -->
   <section id="screen-result" class="hidden">
     <p class="result-head" id="result-head">今日の神様は…</p>
+    <p class="result-sub" id="result-sub"></p>
     <img class="god-img" id="god-img" alt="引いた神様カード">
     <div class="kw-row" id="kw-row"></div>
     <p class="center"><span class="genre-chip" id="genre-chip"></span></p>
@@ -194,6 +219,7 @@
   let lastNum = -1;
   let currentPool = GODS, currentGenre = null;
   function draw(pool, genre){
+    guardianMode = false;
     currentPool = pool; currentGenre = genre;
     show("draw");
     setTimeout(() => {
@@ -204,10 +230,13 @@
       showResult(pick);
     }, 1000);
   }
+  let guardianMode = false;
   function showResult(g){
-    $("result-head").textContent = currentGenre
-      ? `${currentGenre.replace(/の神様$/, "")}の神様は…`
-      : "今日の神様は…";
+    $("result-head").textContent = guardianMode
+      ? "あなたの守り神は…"
+      : (currentGenre ? `${currentGenre.replace(/の神様$/, "")}の神様は…` : "今日の神様は…");
+    if (!guardianMode) $("result-sub").textContent = "";
+    $("btn-again").textContent = guardianMode ? "おまかせで引いてみる" : "もう一度引く";
     const img = $("god-img");
     img.src = g.img; img.alt = `${g.name}のカード`;
     $("kw-row").innerHTML = g.kw.map(k => `<span class="kw">${k}</span>`).join("");
@@ -218,8 +247,45 @@
     show("result");
   }
   $("btn-random").addEventListener("click", () => draw(GODS, null));
-  $("btn-again").addEventListener("click", () => draw(currentPool, currentGenre));
+  $("btn-again").addEventListener("click", () => {
+    if (guardianMode) draw(GODS, null); else draw(currentPool, currentGenre);
+  });
   $("btn-home").addEventListener("click", () => show("home"));
+
+  // あなたの守り神（生年月日→数秘の数字→神様）
+  const GUARDIANS = {1:23, 2:40, 3:32, 4:19, 5:12, 6:2, 7:24, 8:6, 9:5};
+  const NUM_INFO = {
+    1:"リーダー・始まり・太陽", 2:"協調・ご縁・やさしさ", 3:"明るさ・表現・楽しさ",
+    4:"安定・土台・まじめ", 5:"自由・冒険・変化", 6:"愛・美・家庭",
+    7:"探求・知恵・直感", 8:"豊かさ・成功・実り", 9:"慈愛・癒し・再生"
+  };
+  const selY = $("bd-y"), selM = $("bd-m"), selD = $("bd-d");
+  selY.innerHTML = '<option value="">----</option>' +
+    Array.from({length: 92}, (_, i) => 2026 - i).map(y => `<option value="${y}">${y}</option>`).join("");
+  selM.innerHTML = '<option value="">--</option>' +
+    Array.from({length: 12}, (_, i) => i + 1).map(m => `<option value="${m}">${m}</option>`).join("");
+  selD.innerHTML = '<option value="">--</option>' +
+    Array.from({length: 31}, (_, i) => i + 1).map(d => `<option value="${d}">${d}</option>`).join("");
+  function lifePath(y, m, d){
+    let s = `${y}${String(m).padStart(2, "0")}${String(d).padStart(2, "0")}`
+      .split("").reduce((a, c) => a + Number(c), 0);
+    while (s > 9) s = String(s).split("").reduce((a, c) => a + Number(c), 0);
+    return s;
+  }
+  $("btn-guardian").addEventListener("click", () => {
+    const y = Number(selY.value), m = Number(selM.value), d = Number(selD.value);
+    if (!y || !m || !d) { alert("生年月日をぜんぶ選んでね"); return; }
+    const dt = new Date(y, m - 1, d);
+    if (dt.getFullYear() !== y || dt.getMonth() !== m - 1 || dt.getDate() !== d) {
+      alert("その日付はないみたい。もう一度確認してね"); return;
+    }
+    const n = lifePath(y, m, d);
+    const g = GODS.find(x => x.num === GUARDIANS[n]);
+    guardianMode = true;
+    $("result-sub").textContent = `あなたの数字は【${n}】${NUM_INFO[n]}`;
+    show("draw");
+    setTimeout(() => showResult(g), 1000);
+  });
   // プレビュー用: ?god=番号 でその神様の結果を直接表示
   const q = new URLSearchParams(location.search).get("god");
   if (q) { const g = GODS.find(x => x.num === Number(q)); if (g) showResult(g); }
