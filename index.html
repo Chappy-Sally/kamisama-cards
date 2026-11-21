@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>チャッピー＆サリーの神様カード｜今日の神様を引く</title>
+<style>
+  :root{
+    --cream:#FFF8E7; --paper:#FFFDF6; --gold:#C69E3E; --gold-soft:#F5E7C3;
+    --purple:#3B2358; --brown:#7A5A1A; --ink:#33302A; --pink:#FDF0F6; --pink-line:#CE82A0;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  body{
+    margin:0; background:var(--cream); color:var(--ink);
+    font-family:"Hiragino Maru Gothic ProN","Hiragino Sans","Noto Sans JP",sans-serif;
+  }
+  .wrap{max-width:480px; margin:0 auto; padding:20px 16px 40px;}
+  header{text-align:center; padding:18px 6px 6px;}
+  .app-title{
+    font-family:"Hiragino Mincho ProN","Yu Mincho",serif;
+    font-size:26px; font-weight:700; color:var(--purple); line-height:1.35; margin:0;
+  }
+  .app-sub{color:var(--brown); font-size:14px; margin:8px 0 0;}
+  .stars{color:var(--gold); font-size:15px; letter-spacing:6px; margin-bottom:6px;}
+  .card-frame{
+    background:var(--paper); border:3px solid var(--gold); border-radius:20px;
+    padding:18px 16px; margin-top:16px; box-shadow:0 4px 14px rgba(198,158,62,.18);
+  }
+  .lead{text-align:center; font-size:15px; line-height:1.8; margin:2px 0 14px;}
+  .btn{
+    display:block; width:100%; border:none; cursor:pointer; border-radius:999px;
+    font-family:inherit; font-weight:700; text-align:center;
+  }
+  .btn-main{
+    background:linear-gradient(180deg,#D9B45B,#C69E3E); color:#fff;
+    font-size:19px; padding:16px 10px; box-shadow:0 4px 0 #9A7A24;
+  }
+  .btn-main:active{transform:translateY(2px); box-shadow:0 2px 0 #9A7A24;}
+  .genre-title{text-align:center; color:var(--purple); font-weight:700; margin:20px 0 10px; font-size:16px;}
+  .genre-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+  .genre-btn{
+    background:#fff; border:2px solid var(--gold); border-radius:16px; padding:12px 8px;
+    font-family:inherit; cursor:pointer; text-align:center;
+  }
+  .genre-btn:active{background:var(--gold-soft);}
+  .genre-btn .em{font-size:24px; display:block; margin-bottom:4px;}
+  .genre-btn .gn{font-size:14px; font-weight:700; color:var(--purple); display:block; line-height:1.4;}
+  .genre-btn .gc{font-size:11px; color:var(--brown);}
+  .genre-btn.wide{grid-column:1 / -1;}
+  .note{text-align:center; font-size:12px; color:#9a8a63; margin-top:18px; line-height:1.7;}
+  /* 引くアニメーション */
+  #screen-draw{text-align:center; padding-top:26px;}
+  .cardback{
+    width:230px; height:410px; margin:10px auto; border-radius:16px;
+    background:
+      radial-gradient(circle at 50% 38%, #FFF3D6 0 88px, transparent 89px),
+      repeating-linear-gradient(45deg,#F7ead0 0 14px,#F3E3BC 14px 28px);
+    border:5px solid var(--gold); outline:2px solid #fff; outline-offset:-12px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;
+    animation:shake .9s ease-in-out infinite; box-shadow:0 10px 24px rgba(122,90,26,.25);
+  }
+  .cardback .big{font-size:56px;}
+  .cardback .bt{
+    font-family:"Hiragino Mincho ProN",serif; color:var(--purple);
+    font-size:19px; font-weight:700; line-height:1.5; text-align:center;
+  }
+  @keyframes shake{
+    0%,100%{transform:rotate(-2.2deg) translateY(0);}
+    50%{transform:rotate(2.2deg) translateY(-8px);}
+  }
+  .drawing-text{color:var(--brown); font-size:15px; margin-top:14px;}
+  /* 結果 */
+  #screen-result .result-head{
+    text-align:center; color:var(--purple); font-weight:700; font-size:17px; margin:4px 0 12px;
+  }
+  .god-img{
+    display:block; width:min(300px,84vw); margin:0 auto; border-radius:14px;
+    box-shadow:0 8px 22px rgba(59,35,88,.22); animation:flipin .7s ease;
+  }
+  @keyframes flipin{
+    0%{transform:rotateY(90deg) scale(.92); opacity:0;}
+    100%{transform:rotateY(0) scale(1); opacity:1;}
+  }
+  .kw-row{display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin:16px 0 4px;}
+  .kw{
+    background:var(--pink); border:2px solid var(--pink-line); color:var(--purple);
+    border-radius:999px; padding:5px 16px; font-size:14px; font-weight:700;
+  }
+  .genre-chip{
+    display:inline-block; background:var(--gold-soft); border:1.5px solid var(--gold);
+    color:var(--brown); border-radius:999px; padding:4px 14px; font-size:13px; font-weight:700;
+  }
+  .center{text-align:center;}
+  .msg-box{
+    background:var(--pink); border:2px solid var(--pink-line); border-radius:16px;
+    padding:14px 16px; margin-top:14px; line-height:1.85; font-size:16px;
+  }
+  .msg-label{color:var(--purple); font-weight:700; font-size:13px; margin-bottom:6px;}
+  .about-box,.act-box{
+    background:#fff; border:2px solid var(--gold); border-radius:16px;
+    padding:14px 16px; margin-top:12px; line-height:1.85; font-size:15px;
+  }
+  .act-box{background:#F2FAEE;}
+  .btn-row{display:grid; gap:10px; margin-top:20px;}
+  .btn-sub{
+    background:#fff; color:var(--purple); border:2.5px solid var(--gold);
+    font-size:16px; padding:13px 10px;
+  }
+  .btn-sub:active{background:var(--gold-soft);}
+  footer{text-align:center; color:#b3a06e; font-size:12px; margin-top:26px; line-height:1.7;}
+  .hidden{display:none;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ホーム -->
+  <section id="screen-home">
+    <header>
+      <div class="stars">✦ ✦ ✦</div>
+      <h1 class="app-title">チャッピー＆サリーの<br>神様カード</h1>
+      <p class="app-sub">44柱の神様が、今日のあなたを応援します</p>
+    </header>
+    <div class="card-frame">
+      <p class="lead">心の中で「今日の応援をお願いします」と思って、<br>カードを引いてみてね。</p>
+      <button class="btn btn-main" id="btn-random">✨ おまかせで1枚引く</button>
+      <p class="genre-title">ジャンルを選んで引く</p>
+      <div class="genre-grid" id="genre-grid"></div>
+      <p class="note">おまかせは44柱ぜんぶの中から、<br>ジャンル引きは選んだジャンルの神様の中から出てくるよ。</p>
+    </div>
+  </section>
+
+  <!-- 引いているところ -->
+  <section id="screen-draw" class="hidden">
+    <div class="cardback">
+      <div class="big">✨</div>
+      <div class="bt">チャッピー＆サリーの<br>神様カード</div>
+      <div class="big" style="font-size:30px;">🐾</div>
+    </div>
+    <p class="drawing-text">神様を呼んでいます…</p>
+  </section>
+
+  <!-- 結果 -->
+  <section id="screen-result" class="hidden">
+    <p class="result-head" id="result-head">今日の神様は…</p>
+    <img class="god-img" id="god-img" alt="引いた神様カード">
+    <div class="kw-row" id="kw-row"></div>
+    <p class="center"><span class="genre-chip" id="genre-chip"></span></p>
+    <div class="msg-box">
+      <div class="msg-label">💌 神様からのひと言</div>
+      <div id="god-msg"></div>
+    </div>
+    <div class="about-box">
+      <div class="msg-label">📖 どんな神様？</div>
+      <div id="god-about"></div>
+    </div>
+    <div class="act-box">
+      <div class="msg-label">🍀 今日のしあわせアクション</div>
+      <div id="god-act"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-main" id="btn-again">もう一度引く</button>
+      <button class="btn btn-sub" id="btn-home">ジャンルを選び直す</button>
+    </div>
+  </section>
+
+  <footer>チャッピー＆サリーの神様カード<br>チャッピー＆サリーとミカド＆メルが44柱の神様に大変身！</footer>
+</div>
+
+<script src="data.js"></script>
+<script>
+  const $ = id => document.getElementById(id);
+  const screens = { home: $("screen-home"), draw: $("screen-draw"), result: $("screen-result") };
+  function show(name){
+    for (const k in screens) screens[k].classList.toggle("hidden", k !== name);
+    window.scrollTo({ top: 0 });
+  }
+  // ジャンル一覧（登場順を保つ）
+  const genres = [];
+  const byGenre = {};
+  for (const g of GODS) {
+    if (!byGenre[g.genre]) { byGenre[g.genre] = []; genres.push(g); }
+    byGenre[g.genre].push(g);
+  }
+  const grid = $("genre-grid");
+  genres.forEach((g, i) => {
+    const b = document.createElement("button");
+    b.className = "genre-btn" + (i === genres.length - 1 && genres.length % 2 === 1 ? " wide" : "");
+    b.innerHTML = `<span class="em">${g.emoji}</span><span class="gn">${g.genre.replace(/の神様$/, "")}</span><span class="gc">${byGenre[g.genre].length}柱</span>`;
+    b.addEventListener("click", () => draw(byGenre[g.genre], g.genre));
+    grid.appendChild(b);
+  });
+
+  let lastNum = -1;
+  let currentPool = GODS, currentGenre = null;
+  function draw(pool, genre){
+    currentPool = pool; currentGenre = genre;
+    show("draw");
+    setTimeout(() => {
+      let pick;
+      do { pick = pool[Math.floor(Math.random() * pool.length)]; }
+      while (pool.length > 1 && pick.num === lastNum);
+      lastNum = pick.num;
+      showResult(pick);
+    }, 1000);
+  }
+  function showResult(g){
+    $("result-head").textContent = currentGenre
+      ? `${currentGenre.replace(/の神様$/, "")}の神様は…`
+      : "今日の神様は…";
+    const img = $("god-img");
+    img.src = g.img; img.alt = `${g.name}のカード`;
+    $("kw-row").innerHTML = g.kw.map(k => `<span class="kw">${k}</span>`).join("");
+    $("genre-chip").textContent = `${g.emoji} ${g.genre}`;
+    $("god-msg").textContent = g.msg;
+    $("god-about").textContent = g.about;
+    $("god-act").textContent = g.act;
+    show("result");
+  }
+  $("btn-random").addEventListener("click", () => draw(GODS, null));
+  $("btn-again").addEventListener("click", () => draw(currentPool, currentGenre));
+  $("btn-home").addEventListener("click", () => show("home"));
+  // プレビュー用: ?god=番号 でその神様の結果を直接表示
+  const q = new URLSearchParams(location.search).get("god");
+  if (q) { const g = GODS.find(x => x.num === Number(q)); if (g) showResult(g); }
+</script>
+</body>
+</html>
