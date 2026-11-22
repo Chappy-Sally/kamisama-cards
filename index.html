@@ -193,10 +193,6 @@
       <div class="msg-label">💌 神様からのひと言</div>
       <div id="god-msg"></div>
     </div>
-    <div class="about-box">
-      <div class="msg-label">📖 どんな神様？</div>
-      <div id="god-about"></div>
-    </div>
     <div class="act-box">
       <div class="msg-label">🍀 今日のしあわせアクション</div>
       <div id="god-act"></div>
@@ -284,7 +280,6 @@
     $("kw-row").innerHTML = g.kw.map(k => `<span class="kw">${k}</span>`).join("");
     $("genre-chip").textContent = `${g.emoji} ${g.genre}`;
     $("god-msg").textContent = g.msg;
-    $("god-about").textContent = g.about;
     $("god-act").textContent = g.act;
     // アプリ限定：今日のラッキー（お引きの結果で表示）
     $("lucky-box").classList.toggle("hidden", guardianMode);
