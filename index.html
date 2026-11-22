@@ -114,6 +114,22 @@
     padding:14px 16px; margin-top:12px; line-height:1.85; font-size:15px;
   }
   .act-box{background:#F2FAEE;}
+  .lucky-box{
+    background:#FFF6DA; border:2px dashed var(--gold); border-radius:16px;
+    padding:14px 16px; margin-top:12px; line-height:1.85; font-size:15px;
+  }
+  .lucky-box .lk{font-weight:700; color:var(--purple);}
+  .match-box{
+    background:#F6F0FF; border:2px solid #B79CE0; border-radius:16px;
+    padding:14px 16px; margin-top:12px; line-height:1.85; font-size:15px; text-align:center;
+  }
+  .match-box .msg-label{text-align:left;}
+  .match-img{
+    width:110px; border-radius:10px; box-shadow:0 4px 12px rgba(59,35,88,.2);
+    display:block; margin:6px auto 8px;
+  }
+  .match-name{font-weight:700; color:var(--purple); font-size:17px; margin-bottom:4px;}
+  .match-text{text-align:left;}
   .btn-row{display:grid; gap:10px; margin-top:20px;}
   .btn-sub{
     background:#fff; color:var(--purple); border:2.5px solid var(--gold);
@@ -185,6 +201,17 @@
       <div class="msg-label">🍀 今日のしあわせアクション</div>
       <div id="god-act"></div>
     </div>
+    <div class="lucky-box" id="lucky-box">
+      <div class="msg-label">🎁 アプリ限定｜今日のラッキー</div>
+      <div>ラッキーカラー：<span class="lk" id="god-lucky-color"></span></div>
+      <div>ラッキーアイテム：<span class="lk" id="god-lucky-item"></span></div>
+    </div>
+    <div class="match-box hidden" id="match-box">
+      <div class="msg-label">💞 アプリ限定｜相性のいい神様</div>
+      <img class="match-img" id="match-img" alt="相性のいい神様のカード">
+      <div class="match-name" id="match-name"></div>
+      <div class="match-text" id="match-text"></div>
+    </div>
     <div class="btn-row">
       <button class="btn btn-main" id="btn-again">もう一度引く</button>
       <button class="btn btn-sub" id="btn-home">ジャンルを選び直す</button>
@@ -233,6 +260,19 @@
     }, 1000);
   }
   let guardianMode = false;
+  let guardianNum = 0;
+  // アプリ限定：守り神どうしの相性（相手は9柱の守り神の中から）
+  const GUARDIAN_MATCH = {
+    1: { god: 32, text: "岩戸の前で踊って、太陽を呼び戻したのが鈿女さま。光と笑いで、どんな場もぱっと明るくなるコンビだよ。" },
+    2: { god: 19, text: "どちらも「結ぶ」力の神様。縁結びの大国主さまと一緒なら、人とのご縁がやさしく結ばれていくよ。" },
+    3: { god: 23, text: "鈿女さまの踊りで、天照さまは岩戸から顔を出してくれたんだ。笑顔と太陽で、元気を分け合えるコンビだよ。" },
+    4: { god: 40, text: "争いを取り持つ菊理媛さまは、大国主さまの名パートナー。話を聞く力と結ぶ力が合わさると、調和が生まれるよ。" },
+    5: { god: 23, text: "やんちゃな弟と、太陽の姉さんという姉弟コンビ。嵐のパワーを、天照さまの光があたたかく照らしてくれるよ。" },
+    6: { god: 6,  text: "桜の花が咲いて、やがて実を結ぶように。咲耶姫さまの咲く力と、大黒天さまの実らせる力で、愛も豊かさも花開くコンビだよ。" },
+    7: { god: 12, text: "じっくり考える思兼さまと、勢いで動く須佐之男さま。知恵と行動力が合わさると、止まっていたことが動き出すよ。" },
+    8: { god: 24, text: "にっこり笑顔の福の神と、名案を出す知恵の神様。いいアイデアが、豊かさの実りにつながるコンビだよ。" },
+    9: { god: 2,  text: "深い愛で包むイシスと、命を育てる咲耶姫さま。やさしさと母性で、心をふんわり包んでくれるコンビだよ。" }
+  };
   function showResult(g){
     $("result-head").textContent = guardianMode
       ? "あなたの守り神は…"
@@ -246,6 +286,22 @@
     $("god-msg").textContent = g.msg;
     $("god-about").textContent = g.about;
     $("god-act").textContent = g.act;
+    // アプリ限定：今日のラッキー（お引きの結果で表示）
+    $("lucky-box").classList.toggle("hidden", guardianMode);
+    if (!guardianMode) {
+      $("god-lucky-color").textContent = g.luckyColor;
+      $("god-lucky-item").textContent = g.luckyItem;
+    }
+    // アプリ限定：守り神の相性（守り神の結果でだけ表示）
+    const match = guardianMode ? GUARDIAN_MATCH[guardianNum] : null;
+    $("match-box").classList.toggle("hidden", !match);
+    if (match) {
+      const p = GODS.find(x => x.num === match.god);
+      $("match-img").src = p.img;
+      $("match-img").alt = `${p.name}のカード`;
+      $("match-name").textContent = p.name;
+      $("match-text").textContent = match.text;
+    }
     show("result");
   }
   $("btn-random").addEventListener("click", () => draw(GODS, null));
@@ -284,6 +340,7 @@
     const n = lifePath(y, m, d);
     const g = GODS.find(x => x.num === GUARDIANS[n]);
     guardianMode = true;
+    guardianNum = n;
     $("result-sub").textContent = `あなたの数字は【${n}】${NUM_INFO[n]}`;
     show("draw");
     setTimeout(() => showResult(g), 1000);
