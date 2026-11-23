@@ -61,6 +61,12 @@
   }
   .btn-guardian:active{transform:translateY(2px); box-shadow:0 2px 0 #241239;}
   .result-sub{text-align:center; color:var(--brown); font-size:14px; margin:-6px 0 12px; font-weight:700;}
+  .secret-banner{
+    text-align:center; font-weight:700; font-size:17px; color:#fff; letter-spacing:.02em;
+    background:linear-gradient(90deg,#B98A1E,#E5C76B,#B98A1E);
+    border-radius:999px; padding:11px 14px; margin:0 0 14px;
+    box-shadow:0 4px 12px rgba(198,158,62,.4); animation:flipin .7s ease;
+  }
   /* 引くアニメーション */
   #screen-draw{text-align:center; padding-top:26px;}
   .cardback{
@@ -157,7 +163,7 @@
       <button class="btn btn-main" id="btn-random">✨ おまかせで1枚引く</button>
       <p class="genre-title">ジャンルを選んで引く</p>
       <div class="genre-grid" id="genre-grid"></div>
-      <p class="note">おまかせは44柱ぜんぶの中から、<br>ジャンル引きは選んだジャンルの神様の中から出てくるよ。</p>
+      <p class="note">おまかせは44柱の中から、<br>ジャンル引きは選んだジャンルの神様の中から出てくるよ。<br>おまかせでは、まれにシークレットカードが出るかも…？✨</p>
       <div class="guardian-box">
         <p class="genre-title">🎂 あなたの守り神</p>
         <p class="lead">生年月日から出す「あなたの数字」で、<br>ずっと応援してくれる守り神が分かるよ。</p>
@@ -185,6 +191,7 @@
   <!-- 結果 -->
   <section id="screen-result" class="hidden">
     <p class="result-head" id="result-head">今日の神様は…</p>
+    <p class="secret-banner hidden" id="secret-banner">✨ シークレットカードが出たよ！ ✨</p>
     <p class="result-sub" id="result-sub"></p>
     <img class="god-img" id="god-img" alt="引いた神様カード">
     <div class="kw-row" id="kw-row"></div>
@@ -225,10 +232,16 @@
     for (const k in screens) screens[k].classList.toggle("hidden", k !== name);
     window.scrollTo({ top: 0 });
   }
-  // ジャンル一覧（登場順を保つ）
+  // シークレットカード（スペシャル）: 25 天之御中主・43 龍神・44 鳳凰
+  // ジャンル引きには出てこなくて、おまかせ引きで10%の確率でだけ出るよ
+  const SECRET_NUMS = [25, 43, 44];
+  const isSecret = g => SECRET_NUMS.includes(g.num);
+  const NORMAL_GODS = GODS.filter(g => !isSecret(g));
+  const SECRET_GODS = GODS.filter(isSecret);
+  // ジャンル一覧（登場順を保つ）※シークレットカードはジャンル引きに出さない
   const genres = [];
   const byGenre = {};
-  for (const g of GODS) {
+  for (const g of NORMAL_GODS) {
     if (!byGenre[g.genre]) { byGenre[g.genre] = []; genres.push(g); }
     byGenre[g.genre].push(g);
   }
@@ -242,15 +255,27 @@
   });
 
   let lastNum = -1;
-  let currentPool = GODS, currentGenre = null;
+  let currentPool = NORMAL_GODS, currentGenre = null;
+  let secretHit = false;
+  function pickFrom(pool){
+    let pick;
+    do { pick = pool[Math.floor(Math.random() * pool.length)]; }
+    while (pool.length > 1 && pick.num === lastNum);
+    return pick;
+  }
   function draw(pool, genre){
     guardianMode = false;
     currentPool = pool; currentGenre = genre;
     show("draw");
     setTimeout(() => {
+      secretHit = false;
       let pick;
-      do { pick = pool[Math.floor(Math.random() * pool.length)]; }
-      while (pool.length > 1 && pick.num === lastNum);
+      if (genre === null && Math.random() < 0.10) {
+        pick = pickFrom(SECRET_GODS);
+        secretHit = true;
+      } else {
+        pick = pickFrom(pool);
+      }
       lastNum = pick.num;
       showResult(pick);
     }, 1000);
@@ -273,6 +298,7 @@
     $("result-head").textContent = guardianMode
       ? "あなたの守り神は…"
       : (currentGenre ? `${currentGenre.replace(/の神様$/, "")}の神様は…` : "今日の神様は…");
+    $("secret-banner").classList.toggle("hidden", guardianMode || !secretHit);
     if (!guardianMode) $("result-sub").textContent = "";
     $("btn-again").textContent = guardianMode ? "おまかせで引いてみる" : "もう一度引く";
     const img = $("god-img");
@@ -299,9 +325,9 @@
     }
     show("result");
   }
-  $("btn-random").addEventListener("click", () => draw(GODS, null));
+  $("btn-random").addEventListener("click", () => draw(NORMAL_GODS, null));
   $("btn-again").addEventListener("click", () => {
-    if (guardianMode) draw(GODS, null); else draw(currentPool, currentGenre);
+    if (guardianMode) draw(NORMAL_GODS, null); else draw(currentPool, currentGenre);
   });
   $("btn-home").addEventListener("click", () => show("home"));
 
@@ -335,6 +361,7 @@
     const n = lifePath(y, m, d);
     const g = GODS.find(x => x.num === GUARDIANS[n]);
     guardianMode = true;
+    secretHit = false;
     guardianNum = n;
     $("result-sub").textContent = `あなたの数字は【${n}】${NUM_INFO[n]}`;
     show("draw");
