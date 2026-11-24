@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>チャッピー＆サリーの神様相性占い</title>
+</head>
+<body>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "Hiragino Maru Gothic ProN", "Hiragino Sans", sans-serif; background: linear-gradient(180deg, #fdf3ff 0%, #fff7ee 100%); color: #4a3560; padding: 16px 12px 28px; }
+  .wrap { max-width: 430px; margin: 0 auto; }
+  h1 { font-size: 21px; text-align: center; color: #7b4b9e; line-height: 1.4; }
+  .sub { text-align: center; font-size: 13px; color: #a07bb8; margin: 4px 0 14px; }
+  .card { background: #fff; border: 2px solid #eed9f7; border-radius: 16px; padding: 14px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(150,100,180,.08); }
+  .card h2 { font-size: 15px; color: #7b4b9e; margin-bottom: 8px; }
+  label { font-size: 12px; color: #8a6aa8; display: block; margin: 8px 0 4px; }
+  input[type="date"], input[type="text"] { width: 100%; font-size: 16px; padding: 10px; border: 1.5px solid #ddc4ee; border-radius: 10px; background: #fdfaff; color: #4a3560; }
+  .rels { display: flex; gap: 8px; margin-top: 4px; }
+  .rel { flex: 1; text-align: center; padding: 10px 2px; border: 1.5px solid #ddc4ee; border-radius: 999px; font-size: 13px; background: #fff; cursor: pointer; color: #7b4b9e; }
+  .rel.on { background: #9b59c9; color: #fff; border-color: #9b59c9; font-weight: bold; }
+  .go { width: 100%; padding: 14px; font-size: 17px; font-weight: bold; color: #fff; background: linear-gradient(90deg, #b06fc9, #e58bb1); border: none; border-radius: 999px; cursor: pointer; margin-top: 4px; box-shadow: 0 3px 10px rgba(180,110,200,.35); }
+  .go:active { transform: scale(.98); }
+  #result { display: none; }
+  .pair { display: flex; align-items: flex-start; gap: 10px; }
+  .person { flex: 1; text-align: center; }
+  .person img { width: 100%; border-radius: 14px; border: 3px solid #e3c8f5; box-shadow: 0 4px 14px rgba(150,100,180,.25); }
+  .cards-title { text-align: center; font-size: 14px; font-weight: bold; color: #7b4b9e; margin-bottom: 10px; }
+  .pname { font-size: 12px; color: #8a6aa8; margin-top: 6px; }
+  .gname { font-size: 15px; font-weight: bold; color: #6d3f92; }
+  .gnum { font-size: 11px; color: #b28bcc; }
+  .gkw { font-size: 11px; color: #9b59c9; margin-top: 4px; }
+  .gintro { font-size: 11.5px; color: #6d5580; line-height: 1.6; margin-top: 3px; text-align: left; }
+  .heart { font-size: 24px; align-self: center; padding-top: 70px; }
+  .score { text-align: center; margin: 14px 0 4px; }
+  .score .mark { font-size: 54px; font-weight: bold; color: #e05780; line-height: 1; }
+  .score .label { font-size: 16px; font-weight: bold; color: #7b4b9e; margin-top: 4px; }
+  .comment { font-size: 14px; line-height: 1.8; background: #fdf6ff; border-radius: 12px; padding: 12px; margin-top: 10px; }
+  .links { margin-top: 14px; display: grid; gap: 8px; }
+  .links a { display: block; text-align: center; padding: 12px; border-radius: 12px; text-decoration: none; font-size: 14px; font-weight: bold; }
+  .links .book { background: #fff3d6; color: #8a6414; border: 1.5px solid #f0d48a; }
+  .links .app { background: #e9f7ee; color: #2e7d4f; border: 1.5px solid #a9d8ba; }
+  .foot { text-align: center; font-size: 11px; color: #bfa8cf; margin-top: 16px; line-height: 1.7; }
+  .err { color: #d3547a; font-size: 13px; text-align: center; min-height: 18px; margin-top: 6px; }
+</style>
+<div class="wrap">
+  <h1>チャッピー＆サリーの<br>神様相性占い</h1>
+  <p class="sub">✨ 神様占い ✨<br>誕生日から割り出す守り神で、ふたりの相性を診断するよ</p>
+
+  <div class="card">
+    <h2>あなた</h2>
+    <label>お名前（任意）</label>
+    <input type="text" id="nameA" placeholder="あなた">
+    <label>誕生日</label>
+    <input type="date" id="birthA">
+  </div>
+
+  <div class="card">
+    <h2>お相手</h2>
+    <label>お名前（任意）</label>
+    <input type="text" id="nameB" placeholder="お相手">
+    <label>誕生日</label>
+    <input type="date" id="birthB">
+  </div>
+
+  <div class="card">
+    <h2>ふたりの関係は？</h2>
+    <div class="rels">
+      <div class="rel on" data-rel="love">💗 恋愛</div>
+      <div class="rel" data-rel="partner">💑 パートナー</div>
+      <div class="rel" data-rel="business">💼 ビジネス</div>
+    </div>
+  </div>
+
+  <button class="go" id="goBtn">相性を占う ✨</button>
+  <p class="err" id="err"></p>
+
+  <div class="card" id="result">
+    <div class="cards-title">✨ ふたりの守り神カード ✨</div>
+    <div class="pair">
+      <div class="person">
+        <img id="imgA" alt="">
+        <div class="pname" id="pnameA"></div>
+        <div class="gname" id="gnameA"></div>
+        <div class="gnum" id="gnumA"></div>
+        <div class="gkw" id="kwA"></div>
+        <div class="gintro" id="introA"></div>
+      </div>
+      <div class="heart">💞</div>
+      <div class="person">
+        <img id="imgB" alt="">
+        <div class="pname" id="pnameB"></div>
+        <div class="gname" id="gnameB"></div>
+        <div class="gnum" id="gnumB"></div>
+        <div class="gkw" id="kwB"></div>
+        <div class="gintro" id="introB"></div>
+      </div>
+    </div>
+    <div class="score">
+      <div class="mark" id="mark"></div>
+      <div class="label" id="markLabel"></div>
+    </div>
+    <div class="comment" id="comment"></div>
+    <div class="links">
+      <a class="book" href="https://www.amazon.co.jp/s?k=%E3%83%81%E3%83%A3%E3%83%83%E3%83%94%E3%83%BC%EF%BC%86%E3%82%B5%E3%83%AA%E3%83%BC%E3%81%AE%E7%A5%9E%E6%A7%98%E3%82%AB%E3%83%BC%E3%83%89%E3%83%96%E3%83%83%E3%82%AF" target="_blank" rel="noopener">📖 守り神の本『神様カードブック』発売中（Kindle 980円）</a>
+      <a class="app" href="https://chappysally.base.shop/items/166786180" target="_blank" rel="noopener">🔮 44柱の神様カードアプリはこちら</a>
+    </div>
+  </div>
+
+  <p class="foot">守り神は、生年月日の数字を1桁になるまで足して出すよ。<br>相性は『チャッピー＆サリーの神様カードブック』の相性表をもとにしています。</p>
+</div>
+
+<script>
+var GODS = {
+  1: { name: "天照大神", card: 23, kw: "太陽", kws: "太陽・光・導き", intro: "太陽の女神。光で道を照らして、迷いを晴らしてくれるよ。" },
+  2: { name: "菊理媛神", card: 40, kw: "縁結び", kws: "縁結び・調和・仲裁", intro: "「くくる＝結ぶ」力の女神。人と人の縁をつないでくれるよ。" },
+  3: { name: "天之鈿女命", card: 32, kw: "笑い", kws: "踊り・笑い・芸能", intro: "岩戸の前で踊った、笑いと踊りの女神。場を明るくしてくれるよ。" },
+  4: { name: "大国主命", card: 19, kw: "縁結び", kws: "縁結び・国づくり・慈しみ", intro: "出雲大社の神様。やさしさで縁を結ぶ、国づくりの神だよ。" },
+  5: { name: "須佐之男命", card: 12, kw: "勇気", kws: "突破・勇気・厄除け", intro: "大蛇を退治した勇気の神。嵐のような力で厄を払ってくれるよ。" },
+  6: { name: "木花咲耶姫", card: 2, kw: "美しさ", kws: "美しさ・桜・まごころ", intro: "桜のように咲く美しさの姫神。まごころを届けてくれるよ。" },
+  7: { name: "思兼神", card: 24, kw: "知恵", kws: "知恵・ひらめき・相談", intro: "岩戸作戦を考えた知恵の神。名案とひらめきをくれるよ。" },
+  8: { name: "大黒天", card: 6, kw: "豊かさ", kws: "豊かさ・笑顔・商売繁盛", intro: "福袋と小槌の福の神。笑顔のところに豊かさを運んでくるよ。" },
+  9: { name: "イシス", card: 5, kw: "深い愛", kws: "深い愛・母性・再生", intro: "深い愛と母性の女神。翼を広げて、大切な人を守ってくれるよ。" }
+};
+var MATRIX = {
+  1: ["◎","○","◎","△","◎","◎","◎","○","○"],
+  2: ["○","◎","○","◎","×","○","○","○","○"],
+  3: ["◎","○","◎","○","○","◎","◎","○","○"],
+  4: ["△","◎","○","◎","○","○","○","◎","○"],
+  5: ["◎","×","○","○","◎","×","◎","△","○"],
+  6: ["◎","○","◎","○","×","◎","△","◎","◎"],
+  7: ["◎","○","◎","○","◎","△","◎","◎","○"],
+  8: ["○","○","○","◎","△","◎","◎","◎","○"],
+  9: ["○","○","○","○","○","◎","○","○","◎"]
+};
+var LABELS = { "◎": "とても相性がいい", "○": "相性がいい", "△": "ゆっくり育てたい相性", "×": "正反対だからこそ刺激的" };
+var SPECIAL = {
+  "1-3": "岩戸の前で踊って、太陽を呼び戻した仲。光と笑いの最強コンビだよ。",
+  "1-5": "嵐の弟と太陽の姉さん。正反対でも分かり合える姉弟コンビだよ。",
+  "1-6": "太陽の光を浴びて、花は咲く。光と花の、明るいコンビだよ。",
+  "1-7": "岩戸作戦を考えた知恵の神。太陽と知恵の名コンビだよ。",
+  "2-4": "どちらも「結ぶ」力の神様。ご縁結びの最強タッグだよ。",
+  "3-6": "舞と花、笑顔と美しさ。華やかな仲良しコンビだよ。",
+  "3-7": "岩戸作戦の、作戦役と実行役。知恵と笑いで世界を明るくした二人だよ。",
+  "4-8": "「大国」と「大黒」、名前のルーツも同じといわれる深いご縁だよ。",
+  "5-7": "知恵と行動力が出会うと、止まっていたことが動き出すよ。",
+  "6-8": "咲く力と実らせる力。愛も豊かさも花開くコンビだよ。",
+  "6-9": "深い愛と母性で心を包む、女神同士のコンビだよ。",
+  "7-8": "福の神と知恵の神。いいアイデアが、実りにつながるよ。",
+  "2-5": "結ぶ力と、自由にほどけていく力。正反対だからこそ、刺激的で新しい発見があるよ。",
+  "5-6": "嵐の自由さと、花の儚さ。正反対の二人だからこそ、相手の世界がまぶしく見えるよ。",
+  "1-4": "国譲りの昔話がある二人。時間をかけて信頼を育ててきた仲だよ。",
+  "5-8": "嵐の変化と大地の安定。ペースが違うから、ゆっくり歩幅を合わせてね。",
+  "6-7": "感じる心と考える頭。大切にしたいものが違うから、対話が大事だよ。",
+  "1-2": "光と結び。明るく照らす力と、縁をつなぐ力が合わさって、周りの人まで幸せにする二人だよ。",
+  "1-8": "太陽と福の神。明るさと豊かさが合わさって、一緒にいると運気が上がる組み合わせだよ。",
+  "1-9": "光と深い愛。照らす力と包む力が合わさって、安心感のある二人だよ。",
+  "2-3": "結びと笑い。場を和ませながら、縁を深めていける二人だよ。",
+  "2-6": "結びと美しさ。やさしい気持ちが花ひらく、穏やかな組み合わせだよ。",
+  "2-7": "結びと知恵。話を聞く力と考える力が合わさって、問題をほぐしていける二人だよ。",
+  "2-8": "結びと豊かさ。人との縁が、福を運んでくる組み合わせだよ。",
+  "2-9": "結びと深い愛。お互いを大切にする気持ちが、絆を深めていくよ。",
+  "3-4": "笑いと縁結び。明るい空気が、いいご縁を引き寄せる二人だよ。",
+  "3-5": "笑いと嵐の力。にぎやかで退屈しない、元気いっぱいの組み合わせだよ。",
+  "3-8": "笑いと福。笑顔が福を呼ぶ、そのままの二人だよ。",
+  "3-9": "笑いと深い愛。明るさと優しさで、周りをほっとさせる二人だよ。",
+  "4-5": "出雲で深くつながる二人。やさしさと勢いが合わさると、大きなことができるよ。",
+  "4-6": "縁結びと花。大切な人との縁が、花のように開いていく組み合わせだよ。",
+  "4-7": "縁と知恵。人とのつながりを、知恵で上手に育てていける二人だよ。",
+  "4-9": "慈しみと深い愛。やさしさ同士が支え合う、温かい組み合わせだよ。",
+  "5-9": "嵐と深い愛。強い気持ち同士がぶつかっても、最後は分かり合える二人だよ。",
+  "7-9": "知恵と深い愛。頭と心の両方で支え合える、頼もしい組み合わせだよ。",
+  "8-9": "豊かさと深い愛。心の豊かさも、暮らしの豊かさも育つ、恵まれた二人だよ。"
+};
+var CLOSING = {
+  love: {
+    "◎": "この気持ち、大切に育ててね。ふたりの時間そのものが開運だよ。",
+    "○": "焦らなくて大丈夫。笑顔でいる時間が、距離を縮めてくれるよ。",
+    "△": "ペースの違いは悪くないよ。言葉で伝えることを大切にね。",
+    "×": "ドキドキは刺激の証拠。相手の世界をのぞく気持ちでいると、発見がいっぱいだよ。"
+  },
+  partner: {
+    "◎": "気持ちを伝え合うほど、絆が深まる組み合わせ。記念日や小さな約束を大切にね。",
+    "○": "思いやりの積み重ねが効く二人。「ありがとう」を言葉にすると、もっと温かくなるよ。",
+    "△": "すれ違いは、話し合いのサイン。短くても、顔を見て話す時間を作ってね。",
+    "×": "違いが多い分、補い合える二人。役割を分けると、うまく回り出すよ。"
+  },
+  business: {
+    "◎": "役割分担が決まれば最強タッグ。目標を言葉にして共有するのがコツだよ。",
+    "○": "信頼をコツコツ積める二人。小さな報告・連絡が、大きな安心につながるよ。",
+    "△": "得意分野が違う二人。最初に「誰が何をするか」を決めると、スムーズだよ。",
+    "×": "ぶつかるのは真剣な証拠。数字と期限で話すと、感情の衝突が減るよ。"
+  }
+};
+var rel = "love";
+document.querySelectorAll(".rel").forEach(function(el){
+  el.addEventListener("click", function(){
+    document.querySelectorAll(".rel").forEach(function(e){ e.classList.remove("on"); });
+    el.classList.add("on");
+    rel = el.getAttribute("data-rel");
+    if (document.getElementById("result").style.display === "block") runDiagnosis();
+  });
+});
+function guardianNum(dateStr){
+  var digits = dateStr.replace(/-/g, "");
+  var sum = 0;
+  for (var i = 0; i < digits.length; i++) sum += parseInt(digits[i], 10);
+  while (sum > 9) { var s = 0, t = String(sum); for (var j = 0; j < t.length; j++) s += parseInt(t[j], 10); sum = s; }
+  return sum;
+}
+function imgUrl(card){
+  var n = ("0" + card).slice(-2);
+  return "https://chappy-sally.github.io/kamisama-cards/card" + n + ".webp";
+}
+function runDiagnosis(){
+  var bA = document.getElementById("birthA").value;
+  var bB = document.getElementById("birthB").value;
+  var err = document.getElementById("err");
+  if (!bA || !bB) { err.textContent = "ふたりの誕生日を入れてね。"; return; }
+  err.textContent = "";
+  var nA = guardianNum(bA), nB = guardianNum(bB);
+  var gA = GODS[nA], gB = GODS[nB];
+  var nameA = document.getElementById("nameA").value || "あなた";
+  var nameB = document.getElementById("nameB").value || "お相手";
+  document.getElementById("imgA").src = imgUrl(gA.card);
+  document.getElementById("imgB").src = imgUrl(gB.card);
+  document.getElementById("pnameA").textContent = nameA;
+  document.getElementById("pnameB").textContent = nameB;
+  document.getElementById("gnameA").textContent = gA.name;
+  document.getElementById("gnameB").textContent = gB.name;
+  document.getElementById("gnumA").textContent = "守り神ナンバー " + nA;
+  document.getElementById("gnumB").textContent = "守り神ナンバー " + nB;
+  document.getElementById("kwA").textContent = gA.kws;
+  document.getElementById("kwB").textContent = gB.kws;
+  document.getElementById("introA").textContent = gA.intro;
+  document.getElementById("introB").textContent = gB.intro;
+  var mark = MATRIX[nA][nB - 1];
+  document.getElementById("mark").textContent = mark;
+  document.getElementById("markLabel").textContent = LABELS[mark];
+  var key = Math.min(nA, nB) + "-" + Math.max(nA, nB);
+  var base;
+  if (nA === nB) {
+    base = "同じ守り神同士！価値観がそっくりで、説明しなくても分かり合える特別な相性だよ。";
+  } else if (SPECIAL[key]) {
+    base = SPECIAL[key];
+  } else {
+    base = gA.kw + "の" + gA.name + "と、" + gB.kw + "の" + gB.name + "。ふたりの力がやさしく響き合う、相性のいい組み合わせだよ。";
+  }
+  document.getElementById("comment").textContent = base + CLOSING[rel][mark];
+  var r = document.getElementById("result");
+  r.style.display = "block";
+  r.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+document.getElementById("goBtn").addEventListener("click", runDiagnosis);
+</script>
+
+</body>
+</html>
